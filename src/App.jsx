@@ -499,7 +499,7 @@ export default function App() {
                     <a href="https://www.instagram.com/themelodyproject.nonprofit/" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                       <Instagram size={20} />
                     </a>
-                    <a href="#" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                    <a href="https://www.facebook.com/share/1M9JD9c83d/?mibextid=wwXIfr" className="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                       <Facebook size={20} />
                     </a>
                   </div>
@@ -509,7 +509,7 @@ export default function App() {
               {/* Form Side */}
               <div className="md:col-span-3 p-10">
                 <form 
-  action="mailto:contact@themelodyproject.org" 
+  action="mailto:themelodyproject.np@gmail.com" 
   method="POST" 
   enctype="text/plain" 
   className="space-y-6"
