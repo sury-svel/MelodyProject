@@ -143,18 +143,15 @@ const FadeInSection = ({ children, delay = 0 }) => {
   );
 };
 
-// 3. Auto-advancing Image Carousel (equalizer-bar wipe transition)
-const EQ_BAR_COUNT = 10;
-const EQ_BAR_DURATION = 650; // ms, must match the CSS animation-duration
-const EQ_BAR_STAGGER = 30; // ms delay added per bar
-const EQ_SWAP_DELAY = Math.round(EQ_BAR_DURATION / 2 + ((EQ_BAR_COUNT - 1) * EQ_BAR_STAGGER) / 2);
-const EQ_TOTAL_DURATION = EQ_BAR_DURATION + (EQ_BAR_COUNT - 1) * EQ_BAR_STAGGER;
-const EQ_BAR_COLORS = ['#0ea5e9', '#38bdf8', '#facc15', '#2563eb', '#7dd3fc'];
+// 3. Auto-advancing Image Carousel (mascot spin-grow / spin-shrink overlay transition)
+const CARTOON_OUT_DURATION = 750; // ms spin+grow, must match the CSS animation-duration
+const CARTOON_IN_DURATION = 750; // ms spin+shrink, must match the CSS animation-duration
+const CARTOON_TOTAL_DURATION = CARTOON_OUT_DURATION + CARTOON_IN_DURATION;
+const TRANSITION_MASCOT_SRC = '/47FD9E09-B7B8-419D-9D99-3A19AE125150.PNG';
 
 const ImageCarousel = ({ images, interval = 4000 }) => {
   const [index, setIndex] = useState(0);
-  const [showBars, setShowBars] = useState(false);
-  const [barToken, setBarToken] = useState(0);
+  const [phase, setPhase] = useState(null); // null | 'growing' | 'shrinking'
   const transitioningRef = useRef(false);
   const swapTimeoutRef = useRef(null);
   const endTimeoutRef = useRef(null);
@@ -165,16 +162,18 @@ const ImageCarousel = ({ images, interval = 4000 }) => {
     if (nextIndex === index) return;
 
     transitioningRef.current = true;
-    setShowBars(true);
-    setBarToken(t => t + 1);
+    setPhase('growing');
 
     clearTimeout(swapTimeoutRef.current);
     clearTimeout(endTimeoutRef.current);
-    swapTimeoutRef.current = setTimeout(() => setIndex(nextIndex), EQ_SWAP_DELAY);
+    swapTimeoutRef.current = setTimeout(() => {
+      setIndex(nextIndex);
+      setPhase('shrinking');
+    }, CARTOON_OUT_DURATION);
     endTimeoutRef.current = setTimeout(() => {
       transitioningRef.current = false;
-      setShowBars(false);
-    }, EQ_TOTAL_DURATION);
+      setPhase(null);
+    }, CARTOON_TOTAL_DURATION);
   };
 
   useEffect(() => {
@@ -194,25 +193,21 @@ const ImageCarousel = ({ images, interval = 4000 }) => {
           key={src}
           src={src}
           alt={`The Melody Project ${i + 1}`}
-          className={`absolute inset-0 w-full h-full object-cover ${
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
             i === index ? 'opacity-100' : 'opacity-0'
           }`}
         />
       ))}
 
-      {showBars && (
-        <div key={barToken} className="absolute inset-0 z-20 flex pointer-events-none">
-          {Array.from({ length: EQ_BAR_COUNT }).map((_, i) => (
-            <span
-              key={i}
-              className="eq-bar flex-1 h-full"
-              style={{
-                animationDelay: `${i * EQ_BAR_STAGGER}ms`,
-                animationDuration: `${EQ_BAR_DURATION}ms`,
-                background: `linear-gradient(180deg, ${EQ_BAR_COLORS[i % EQ_BAR_COLORS.length]}, #1e3a8a)`,
-              }}
-            />
-          ))}
+      {phase && (
+        <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
+          <img
+            src={TRANSITION_MASCOT_SRC}
+            alt=""
+            className={`w-2/5 max-w-[220px] rounded-2xl shadow-2xl ring-4 ring-white object-cover ${
+              phase === 'growing' ? 'carousel-cartoon-out' : 'carousel-cartoon-in'
+            }`}
+          />
         </div>
       )}
 
