@@ -10,24 +10,26 @@ import { Menu, X, Mail, Instagram, Facebook, Music, Heart, Calendar, BookOpen, U
 */
 
 const LeadershipData = [
-  { name: "Suryan Saravanan", role: "THE GOAAATTTTTTTT", img: "/IMG_3684 (2) 2.jpg" },
+  
   { name: "Charvi Vohra", role: "Founder", img: "/Charvi.jpeg" },
   { name: "Sahithi Vemula", role: "Co-Founder", img: "/Sahiti.JPG" },
+  { name: "Alivia Shang", role: "Co-fundraising, Event, and Client Data Manager", img: "/Alivia.jpeg" },
+  { name: "Suryan Saravanan", role: "Web Developer", img: "/IMG_3684 (2) 2.jpg" },
   { name: "Nakshatra Vusthipalli", role: "Event Facilitator", img: "/Naksh.jpeg" },
   { name: "Vyshnavi Devarakonda", role: "Secretary", img: "/Vaish.jpeg" },
-  { name: "Alivia Shang", role: "Co-fundraising, Event, and Client Data Manager", img: "/Alivia.jpeg" },
   { name: "Cecilio Hayashi", role: "Co-fundraising, Outreach, and Volunteer Manager", img: "/Cecilio.jpeg" },
   { name: "Gauri Parab", role: "Social Media Manager", img: "/Gauri.jpeg" },
-  { name: "Kay Rudolph", role: "Expansion and Social Media Coordinator", img: null },
+  
   
 ];
 
 const EventData = [
-  { 
-    title: "Farmer’s Market", 
-    date: "Upcoming this Saturday", 
-    location: "Coppell Farmer's Market Pavilion",
-    description: "Join us for a morning of live music and community engagement! We'll be sharing information about our tutoring programs." 
+  {
+    title: "Private Lessons",
+    date: "Now Hosting",
+    location: "Sign up anytime",
+    description: "We're now offering private music lessons! Fill out our interest form to get matched with a mentor.",
+    link: "https://docs.google.com/forms/d/1-gWc7qyGeVSUvqdz35OYxdjNBtluA8ziBVMLlYQo9bo/viewform"
   }
 ];
 
@@ -315,7 +317,7 @@ export default function App() {
                   <span className="font-semibold text-sky-600">"The Melody Project"</span> is a nonprofit initiative dedicated to providing low-cost tutoring and mentorship to middle school students who play musical instruments.
                 </p>
                 <p className="text-lg text-blue-800 leading-relaxed mb-8">
-                  The program connects experienced musicians and volunteers with young students to help them develop their musical skills, build confidence, and foster a lifelong appreciation for the arts. In alignment with its community-focused mission, <span className="font-medium text-blue-900">all proceeds generated through The Melody Project will be donated to the Coppell Special Education Foundation</span>, supporting the educational programs and initiatives within Coppell ISD.
+                  The program connects experienced musicians and volunteers with young students to help them develop their musical skills, build confidence, and foster a lifelong appreciation for the arts. In alignment with its community-focused mission, <span className="font-medium text-blue-900">all proceeds generated through The Melody Project will be donated to the Special Education Program at Coppell ISD</span>, supporting the educational programs and initiatives within around DFW.
                 </p>
                 <div className="grid grid-cols-2 gap-6">
                   <div className="p-4 bg-sky-50 rounded-lg border-l-4 border-sky-400">
@@ -408,9 +410,14 @@ export default function App() {
                           <span className="mr-3">{event.date}</span> • <span className="ml-3">{event.location}</span>
                         </p>
                         <p className="text-white text-sm mb-4">{event.description}</p>
-                        <button className="w-full py-2 bg-white text-sky-700 rounded-lg font-bold text-sm hover:bg-sky-50 transition-colors">
+                        <a
+                          href={event.link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="block text-center w-full py-2 bg-white text-sky-700 rounded-lg font-bold text-sm hover:bg-sky-50 transition-colors"
+                        >
                           Register / Interest Form
-                        </button>
+                        </a>
                       </div>
                     ))}
                   </div>
