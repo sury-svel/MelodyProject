@@ -1,3 +1,43 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@keyframes page-shake {
+  0% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  10% { transform: translate3d(-6px, 3px, 0) rotate(-0.4deg); }
+  20% { transform: translate3d(7px, -4px, 0) rotate(0.5deg); }
+  30% { transform: translate3d(-8px, 2px, 0) rotate(-0.6deg); }
+  40% { transform: translate3d(6px, -3px, 0) rotate(0.4deg); }
+  50% { transform: translate3d(-5px, 4px, 0) rotate(-0.3deg); }
+  60% { transform: translate3d(4px, -2px, 0) rotate(0.3deg); }
+  70% { transform: translate3d(-3px, 2px, 0) rotate(-0.2deg); }
+  80% { transform: translate3d(2px, -1px, 0) rotate(0.1deg); }
+  90% { transform: translate3d(-1px, 1px, 0) rotate(0deg); }
+  100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+}
+
+.page-shake {
+  animation: page-shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes carousel-explode-out {
+  0% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0) brightness(1); }
+  30% { opacity: 1; transform: scale(1.2) rotate(160deg); filter: blur(2px) brightness(1.8); }
+  100% { opacity: 0; transform: scale(2.4) rotate(650deg); filter: blur(20px) brightness(2.4); }
+}
+
+.carousel-img-out {
+  animation: carousel-explode-out 0.65s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+  z-index: 2;
+}
+
+@keyframes carousel-explode-in {
+  0% { opacity: 0; transform: scale(0.3) rotate(-540deg); filter: blur(20px) brightness(2.4); }
+  50% { opacity: 1; transform: scale(1.12) rotate(40deg); filter: blur(3px) brightness(1.4); }
+  100% { opacity: 1; transform: scale(1) rotate(0deg); filter: blur(0) brightness(1); }
+}
+
+.carousel-img-in {
+  animation: carousel-explode-in 0.65s cubic-bezier(0.17, 0.84, 0.44, 1) forwards;
+  z-index: 1;
+}

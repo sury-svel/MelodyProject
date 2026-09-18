@@ -1,6 +1,6 @@
 import './index.css';
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Mail, Instagram, Facebook, Music, Heart, Calendar, BookOpen, Users, ChevronRight, Send } from 'lucide-react';
+import { Menu, X, Mail, Instagram, Facebook, Music, Heart, Calendar, BookOpen, Users, ChevronRight, ChevronLeft, Send } from 'lucide-react';
 
 /* --- COLOR THEME & ASSETS ---
   Primary: Sky Blue & Blue (Sky-400/Blue-500)
@@ -21,6 +21,14 @@ const LeadershipData = [
   { name: "Gauri Parab", role: "Social Media Manager", img: "/Gauri.jpeg" },
   
   
+];
+
+const AboutCarouselImages = [
+  "/eaf5393b-eeea-4dde-81f2-14f311ab8447.jpeg",
+  "/942c6aee-8206-4b09-9689-5af82d0f3124.jpeg",
+  "/63fbbc40-f6dd-4adf-b127-0d29df3247c3.jpeg",
+  "/IMG_2877.jpeg",
+  "/IMG_4873.jpeg",
 ];
 
 const EventData = [
@@ -135,7 +143,96 @@ const FadeInSection = ({ children, delay = 0 }) => {
   );
 };
 
-// 3. Navigation Bar
+// 3. Auto-advancing Image Carousel (explode transition + full-page shake)
+const ImageCarousel = ({ images, interval = 4000 }) => {
+  const [index, setIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState(null);
+  const shakeTimeoutRef = useRef(null);
+  const clearPrevTimeoutRef = useRef(null);
+
+  const triggerShake = () => {
+    const root = document.body;
+    root.classList.remove('page-shake');
+    void root.offsetWidth; // restart animation
+    root.classList.add('page-shake');
+    clearTimeout(shakeTimeoutRef.current);
+    shakeTimeoutRef.current = setTimeout(() => {
+      root.classList.remove('page-shake');
+    }, 500);
+  };
+
+  const goTo = (rawIndex) => {
+    const nextIndex = (rawIndex + images.length) % images.length;
+    if (nextIndex === index) return;
+    setPrevIndex(index);
+    setIndex(nextIndex);
+    triggerShake();
+    clearTimeout(clearPrevTimeoutRef.current);
+    clearPrevTimeoutRef.current = setTimeout(() => setPrevIndex(null), 650);
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      goTo(index + 1);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [index, images.length, interval]);
+
+  useEffect(() => () => {
+    clearTimeout(shakeTimeoutRef.current);
+    clearTimeout(clearPrevTimeoutRef.current);
+    document.body.classList.remove('page-shake');
+  }, []);
+
+  return (
+    <div className="relative w-full h-full overflow-hidden rounded-lg group">
+      {images.map((src, i) => {
+        let animClass = 'opacity-0';
+        if (i === index) animClass = `opacity-100 ${prevIndex !== null ? 'carousel-img-in' : ''}`;
+        else if (i === prevIndex) animClass = 'carousel-img-out';
+
+        return (
+          <img
+            key={src}
+            src={src}
+            alt={`The Melody Project ${i + 1}`}
+            className={`absolute inset-0 w-full h-full object-cover ${animClass}`}
+          />
+        );
+      })}
+
+      <button
+        onClick={() => goTo(index - 1)}
+        aria-label="Previous image"
+        className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-white hover:text-blue-900 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <ChevronLeft size={20} />
+      </button>
+      <button
+        onClick={() => goTo(index + 1)}
+        aria-label="Next image"
+        className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/30 hover:bg-white/60 text-white hover:text-blue-900 rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+      >
+        <ChevronRight size={20} />
+      </button>
+
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex space-x-2">
+        {images.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => goTo(i)}
+            aria-label={`Go to image ${i + 1}`}
+            className={`w-2 h-2 rounded-full transition-colors ${
+              i === index ? 'bg-white' : 'bg-white/40'
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
+// 4. Navigation Bar
 const Navbar = ({ activeSection, scrollToSection }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -299,10 +396,8 @@ export default function App() {
                 <div className="absolute -top-4 -left-4 w-24 h-24 bg-yellow-100 rounded-full opacity-70 z-0"></div>
                 <div className="absolute -bottom-4 -right-4 w-32 h-32 bg-sky-100 rounded-full opacity-70 z-0"></div>
                 <div className="relative z-10 bg-gradient-to-br from-sky-400 to-blue-500 p-1 rounded-2xl rotate-2 hover:rotate-0 transition-transform duration-500">
-                   {/*placeholder for photo of students/mentors*/}
-                   <div className="bg-blue-900 h-96 rounded-xl flex flex-col items-center justify-center text-white/50 p-8 text-center">
-                      <Users size={64} className="mb-4 text-white/30" />
-                      <img src="/IMG_0766.jpg" alt="Students and Mentors" className="w-full h-full object-cover rounded-lg" />
+                   <div className="bg-blue-900 h-96 rounded-xl overflow-hidden">
+                      <ImageCarousel images={AboutCarouselImages} />
                    </div>
                 </div>
               </div>
