@@ -143,63 +143,78 @@ const FadeInSection = ({ children, delay = 0 }) => {
   );
 };
 
-// 3. Auto-advancing Image Carousel (explode transition + full-page shake)
+// 3. Auto-advancing Image Carousel (equalizer-bar wipe transition)
+const EQ_BAR_COUNT = 10;
+const EQ_BAR_DURATION = 650; // ms, must match the CSS animation-duration
+const EQ_BAR_STAGGER = 30; // ms delay added per bar
+const EQ_SWAP_DELAY = Math.round(EQ_BAR_DURATION / 2 + ((EQ_BAR_COUNT - 1) * EQ_BAR_STAGGER) / 2);
+const EQ_TOTAL_DURATION = EQ_BAR_DURATION + (EQ_BAR_COUNT - 1) * EQ_BAR_STAGGER;
+const EQ_BAR_COLORS = ['#0ea5e9', '#38bdf8', '#facc15', '#2563eb', '#7dd3fc'];
+
 const ImageCarousel = ({ images, interval = 4000 }) => {
   const [index, setIndex] = useState(0);
-  const [prevIndex, setPrevIndex] = useState(null);
-  const shakeTimeoutRef = useRef(null);
-  const clearPrevTimeoutRef = useRef(null);
-
-  const triggerShake = () => {
-    const root = document.body;
-    root.classList.remove('page-shake');
-    void root.offsetWidth; // restart animation
-    root.classList.add('page-shake');
-    clearTimeout(shakeTimeoutRef.current);
-    shakeTimeoutRef.current = setTimeout(() => {
-      root.classList.remove('page-shake');
-    }, 500);
-  };
+  const [showBars, setShowBars] = useState(false);
+  const [barToken, setBarToken] = useState(0);
+  const transitioningRef = useRef(false);
+  const swapTimeoutRef = useRef(null);
+  const endTimeoutRef = useRef(null);
 
   const goTo = (rawIndex) => {
+    if (transitioningRef.current) return;
     const nextIndex = (rawIndex + images.length) % images.length;
     if (nextIndex === index) return;
-    setPrevIndex(index);
-    setIndex(nextIndex);
-    triggerShake();
-    clearTimeout(clearPrevTimeoutRef.current);
-    clearPrevTimeoutRef.current = setTimeout(() => setPrevIndex(null), 650);
+
+    transitioningRef.current = true;
+    setShowBars(true);
+    setBarToken(t => t + 1);
+
+    clearTimeout(swapTimeoutRef.current);
+    clearTimeout(endTimeoutRef.current);
+    swapTimeoutRef.current = setTimeout(() => setIndex(nextIndex), EQ_SWAP_DELAY);
+    endTimeoutRef.current = setTimeout(() => {
+      transitioningRef.current = false;
+      setShowBars(false);
+    }, EQ_TOTAL_DURATION);
   };
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      goTo(index + 1);
-    }, interval);
+    const timer = setInterval(() => goTo(index + 1), interval);
     return () => clearInterval(timer);
   }, [index, images.length, interval]);
 
   useEffect(() => () => {
-    clearTimeout(shakeTimeoutRef.current);
-    clearTimeout(clearPrevTimeoutRef.current);
-    document.body.classList.remove('page-shake');
+    clearTimeout(swapTimeoutRef.current);
+    clearTimeout(endTimeoutRef.current);
   }, []);
 
   return (
     <div className="relative w-full h-full overflow-hidden rounded-lg group">
-      {images.map((src, i) => {
-        let animClass = 'opacity-0';
-        if (i === index) animClass = `opacity-100 ${prevIndex !== null ? 'carousel-img-in' : ''}`;
-        else if (i === prevIndex) animClass = 'carousel-img-out';
+      {images.map((src, i) => (
+        <img
+          key={src}
+          src={src}
+          alt={`The Melody Project ${i + 1}`}
+          className={`absolute inset-0 w-full h-full object-cover ${
+            i === index ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
+      ))}
 
-        return (
-          <img
-            key={src}
-            src={src}
-            alt={`The Melody Project ${i + 1}`}
-            className={`absolute inset-0 w-full h-full object-cover ${animClass}`}
-          />
-        );
-      })}
+      {showBars && (
+        <div key={barToken} className="absolute inset-0 z-20 flex pointer-events-none">
+          {Array.from({ length: EQ_BAR_COUNT }).map((_, i) => (
+            <span
+              key={i}
+              className="eq-bar flex-1 h-full"
+              style={{
+                animationDelay: `${i * EQ_BAR_STAGGER}ms`,
+                animationDuration: `${EQ_BAR_DURATION}ms`,
+                background: `linear-gradient(180deg, ${EQ_BAR_COLORS[i % EQ_BAR_COLORS.length]}, #1e3a8a)`,
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <button
         onClick={() => goTo(index - 1)}
