@@ -143,48 +143,18 @@ const FadeInSection = ({ children, delay = 0 }) => {
   );
 };
 
-// 3. Auto-advancing Image Carousel (mascot spin-grow / spin-shrink overlay transition)
-const CARTOON_OUT_DURATION = 750; // ms spin+grow, must match the CSS animation-duration
-const CARTOON_IN_DURATION = 750; // ms spin+shrink, must match the CSS animation-duration
-const CARTOON_TOTAL_DURATION = CARTOON_OUT_DURATION + CARTOON_IN_DURATION;
-const TRANSITION_MASCOT_SRC = '/47FD9E09-B7B8-419D-9D99-3A19AE125150.PNG';
-
+// 3. Auto-advancing Image Carousel
 const ImageCarousel = ({ images, interval = 4000 }) => {
   const [index, setIndex] = useState(0);
-  const [phase, setPhase] = useState(null); // null | 'growing' | 'shrinking'
-  const transitioningRef = useRef(false);
-  const swapTimeoutRef = useRef(null);
-  const endTimeoutRef = useRef(null);
-
-  const goTo = (rawIndex) => {
-    if (transitioningRef.current) return;
-    const nextIndex = (rawIndex + images.length) % images.length;
-    if (nextIndex === index) return;
-
-    transitioningRef.current = true;
-    setPhase('growing');
-
-    clearTimeout(swapTimeoutRef.current);
-    clearTimeout(endTimeoutRef.current);
-    swapTimeoutRef.current = setTimeout(() => {
-      setIndex(nextIndex);
-      setPhase('shrinking');
-    }, CARTOON_OUT_DURATION);
-    endTimeoutRef.current = setTimeout(() => {
-      transitioningRef.current = false;
-      setPhase(null);
-    }, CARTOON_TOTAL_DURATION);
-  };
 
   useEffect(() => {
-    const timer = setInterval(() => goTo(index + 1), interval);
+    const timer = setInterval(() => {
+      setIndex(i => (i + 1) % images.length);
+    }, interval);
     return () => clearInterval(timer);
-  }, [index, images.length, interval]);
+  }, [images.length, interval]);
 
-  useEffect(() => () => {
-    clearTimeout(swapTimeoutRef.current);
-    clearTimeout(endTimeoutRef.current);
-  }, []);
+  const goTo = (i) => setIndex((i + images.length) % images.length);
 
   return (
     <div className="relative w-full h-full overflow-hidden rounded-lg group">
@@ -193,23 +163,11 @@ const ImageCarousel = ({ images, interval = 4000 }) => {
           key={src}
           src={src}
           alt={`The Melody Project ${i + 1}`}
-          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-300 ${
+          className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-700 ${
             i === index ? 'opacity-100' : 'opacity-0'
           }`}
         />
       ))}
-
-      {phase && (
-        <div className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none">
-          <img
-            src={TRANSITION_MASCOT_SRC}
-            alt=""
-            className={`w-2/5 max-w-[220px] rounded-2xl shadow-2xl ring-4 ring-white object-cover ${
-              phase === 'growing' ? 'carousel-cartoon-out' : 'carousel-cartoon-in'
-            }`}
-          />
-        </div>
-      )}
 
       <button
         onClick={() => goTo(index - 1)}
